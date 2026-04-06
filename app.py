@@ -2,6 +2,7 @@ import sqlite3
 from datetime import datetime, date
 import pandas as pd
 from pathlib import Path
+import streamlit as st
 
 DB_PATH="study_os.db"
 
@@ -46,3 +47,32 @@ def load_df():
     conn.close()
     return df
 
+st.set_page_config(page_title="Study OS", layout="wide")
+
+st.sidebar.title("Study OS")
+page=st.sidebar.radio("Navigation", ["Tasks"])
+
+if page=="Tasks":
+    st.title("Task Manager")
+    with st.form("add_task"):
+        title=st.text_input("Name")
+        course=st.text_input("subject")
+        priority=st.selectbox("Priority", ["high", "Medium", "Low"])
+        deadline=st.date_input("Deadline")
+        status=st.selectbox("Status", ["Open", "In Progress", "Done"])
+
+        if st.form_submit_button("Add"):
+            if title:
+                run_query(
+                    "INSERT INTO tasks(title,course,priority,deadline, status, created_at) VALUES(?,?,?,?,?,?)",
+                    (title, course, priority, deadline.isoformat(), status, datetime.now().isoformat())
+                )
+                st.success("The task was added")
+                st.rerun()
+        df=load_df()
+
+        if df.empty:
+            st.info("No tasks")
+        else:
+            st.dataframe(df)
+            
