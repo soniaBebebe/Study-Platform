@@ -16,7 +16,7 @@ def init_db():
 
     cur.execute("""
         CREATE TABLE IF NOT EXISTS tasks(
-                id ITEGER PRIMARY KEY AUTOINCREMENT,
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title TEXT NOT NULL,
                 course TEXT,
                 priority TEXT,
