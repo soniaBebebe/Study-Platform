@@ -74,5 +74,7 @@ if page=="Tasks":
         if df.empty:
             st.info("No tasks")
         else:
-            st.dataframe(df)
-            
+            for _, row in df.iterrows():
+                with st.expander(f"{row['title']} | {row['status']}"):
+                    new_titlw=st.text_input("Name", value=row["title"], key=f"title_{row['id']}")
+                    new_course=st.text_input("Subject", value=row["course"], key=f"course_{row['id']}")
