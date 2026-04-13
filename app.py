@@ -76,5 +76,41 @@ if page=="Tasks":
         else:
             for _, row in df.iterrows():
                 with st.expander(f"{row['title']} | {row['status']}"):
-                    new_titlw=st.text_input("Name", value=row["title"], key=f"title_{row['id']}")
+                    new_title=st.text_input("Name", value=row["title"], key=f"title_{row['id']}")
                     new_course=st.text_input("Subject", value=row["course"], key=f"course_{row['id']}")
+                    new_priority=st.selectbox(
+                        "Priority", ["High", "Medium", "Low"],
+                        index=["High", "Medium", "Low"].index(row["priority"].capitalize()),
+                        key=f"priority_{row['id']}"
+                    )
+                    new_status=st.selectbox(
+                        "Status", ["Open", "In Progress", "Done"],
+                        index=["Open", "In Progress", "Done"].index(row["status"]),
+                        key=f"status_{row['id']}"
+                    )
+                    new_deadline=st.date_input(
+                        "Deadline",
+                        value=date.fromisoformat(row["deadline"]) if row["deadline"] else date.today(),
+                        key=f"deadline_{row['id']}"
+                    )
+                    col1, col2=st.columns(2)
+                    if col1.button("Save", key=f"save_{row['id']}"):
+                        run_query(
+                            """UPDATE tasks
+                            SET title=?, course=?, priority=?, status=?, deadline=?
+                            WHERE id=?""",
+                            (
+                                new_title,
+                                new_course,
+                                new_priority,
+                                new_status,
+                                new_deadline.isoformat(),
+                                row["id"]
+                            )
+                        )
+                        st.success("Updated!")
+                        st.rerun()
+                    if col2.button("Delete", key=f"delete_{row['id']}"):
+                        run_query("DELETE FROM tasks WHERE id=?", (row["id"],))
+                        st.warning("Deleted!")
+                        st.rerun()
