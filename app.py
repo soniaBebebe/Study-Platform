@@ -92,7 +92,7 @@ if page=="Tasks":
             if dl <0:
                 st.error(f"{row['title']} (is late for {abs(dl)} days.)")
             elif dl==0:
-                st.warning(f"{row[title]} (due today)")
+                st.warning(f"{row['title']} (due today)")
             else:
                 st.info(f"{row['title']} (due tomorrow)")
 
