@@ -97,14 +97,11 @@ if page=="Tasks":
                     if col1.button("Save", key=f"save_{row['id']}"):
                         run_query(
                             """UPDATE tasks
-                            SET title=?, course=?, priority=?, status=?, deadline=?
+                            SET title=?, course=?, priority=? 
                             WHERE id=?""",
                             (
                                 new_title,
-                                new_course,
                                 new_priority,
-                                new_status,
-                                new_deadline.isoformat(),
                                 row["id"]
                             )
                         )
