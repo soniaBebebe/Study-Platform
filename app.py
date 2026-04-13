@@ -32,6 +32,12 @@ def init_db():
 
 init_db()
 
+def days_left(deadline_str):
+    if not deadline_str:
+        return None
+    d=datetime.strptime(deadline_str, "%Y-%m-%d").date()
+    return (d-date.today()).days
+
 def run_query(query, params=(), fetch=False):
     conn=get_conn()
     cur=conn.cursor()
@@ -70,6 +76,25 @@ if page=="Tasks":
                 st.success("The task was added")
                 st.rerun()
     df=load_df()
+
+    urgent_tasks=[]
+
+    for _, row in df.iterrows():
+        dl=days_left(row["deadline"])
+
+        if dl is not None and row["status"]!="Done":
+            if dl <= 1:
+                urgent_tasks.append((row, dl))
+    if not urgent_tasks:
+        st.success("No urgent Tasks!")
+    else:
+        for row, dl in urgent_tasks:
+            if dl <0:
+                st.error(f"{row['title']} (is late for {abs(dl)} days.)")
+            elif dl==0:
+                st.warning(f"{row[title]} (due today)")
+            else:
+                st.info(f"{row['title']} (due tomorrow)")
 
     if df.empty:
         st.info("No tasks")
