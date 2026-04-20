@@ -56,7 +56,47 @@ def load_df():
 st.set_page_config(page_title="Study OS", layout="wide")
 
 st.sidebar.title("Study OS")
-page=st.sidebar.radio("Navigation", ["Tasks"])
+page=st.sidebar.radio("Navigation",  ["Dashboard", "Tasks"])
+
+if page=="Dashboard":
+    st.title("Study OS Dashboard")
+    df=load_df()
+    total_tasks=len(df)
+
+    if df.empty:
+        st.info("No Data Yet")
+    else:
+        done_tasks = len(df[df["status"]=="Done"])
+        open_tasks = len(df[df["status"]!="Done"])
+
+        urgent=0
+        overdue=0
+
+        for _, row in df.iterrows():
+            dl=days_left(row["deadline"])
+            if dl is not None and row["status"]!= "Done":
+                if dl<0:
+                    overdue+=1
+                elif dl<=1:
+                    urgent +=1
+        
+        col1, col2, col3, col4=st.columns(4)
+
+        col1.metric("Total Tasks", total_tasks)
+        col2.metric("Done", done_tasks)
+        col3.metric("Urgent", urgent)
+        col4.metric("Overdue", overdue)
+
+        st.divider()
+
+        st.subheader("Recent Tasks")
+        recent = df.sort_values(by="created_at", ascending=False).head(5)
+
+        for _, row in recent.iterrows():
+            st.markdown(f"""
+            **{row['title']}**
+            {row['course']} | {row['deadline']} | {row['status']}            
+            """)
 
 if page=="Tasks":
     st.title("Task Manager")
