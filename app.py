@@ -89,6 +89,17 @@ if page=="Dashboard":
 
         st.divider()
 
+        st.subheader("Activity Cahrt")
+
+        if not df.empty:
+            df["created_at"] = pd.to_datetime(df["created_at"])
+
+            activity = df.groupby(df["created_at"].dt.date).size()
+
+            st.line_chart(activity)
+        else: 
+            st.info("No activity yet")
+
         st.subheader("Recent Tasks")
         recent = df.sort_values(by="created_at", ascending=False).head(5)
 
