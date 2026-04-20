@@ -56,7 +56,7 @@ def load_df():
 st.set_page_config(page_title="Study OS", layout="wide")
 
 st.sidebar.title("Study OS")
-page=st.sidebar.radio("Navigation",  ["Dashboard", "Tasks"])
+page=st.sidebar.radio("Navigation",  ["Dashboard", "Tasks", "Calendar"])
 
 if page=="Dashboard":
     st.title("Study OS Dashboard")
@@ -108,6 +108,55 @@ if page=="Dashboard":
             **{row['title']}**
             {row['course']} | {row['deadline']} | {row['status']}            
             """)
+
+if page=="Calendar":
+    st.title("calendar")
+
+    df=load_df()
+
+    if df.empty:
+        st.info("No tasks with dates")
+    else:
+        events=[]
+        
+        for _, row in df.iterrows():
+            if row["deadline"]:
+                events.append({
+                    "Date": row["deadline"],
+                    "Task": row["title"],
+                    "Course": row["course"],
+                    "Priority": row["priority"],
+                    "Status": row["status"]
+                })
+        
+        if events:
+            cal_df=pd.DataFrame(events)
+            cal_df=cal_df.sort_values(by="Date")
+
+            st.subheader("Upcoming Tasks")
+            st.dataframe(cal_df, use_container_width=True)
+
+            st.subheader("By Date")
+
+            grouped=cal_df.groupby("Date")
+
+            for date_key, group in grouped:
+                st.markdown(f"### {date_key}")
+
+                for _, task in group.iterrows():
+                    if task["Status"]=="Done":
+                        color="🟢"
+                    elif task["Status"] == "In Progress":
+                        color="🟡"
+                    else:
+                        color="🔴"
+                    st.markdown(f"""
+                    - **{task['Task']}**
+                    {task['Course']} | {task['Priority']} | {task['Status']}            
+                    """)
+        
+        else:
+            st.info("no deadlines yet")
 
 if page=="Tasks":
     st.title("Task Manager")
