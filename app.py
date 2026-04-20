@@ -3,6 +3,7 @@ from datetime import datetime, date
 import pandas as pd
 from pathlib import Path
 import streamlit as st
+import calendar
 
 DB_PATH="study_os.db"
 
@@ -113,6 +114,28 @@ if page=="Calendar":
     st.title("calendar")
 
     df=load_df()
+
+    if "cal_month" not in st.session_state:
+        st.session_state.cal_month = date.today().month
+    if "cal_year" not in st.session_state:
+        st.session_state.cal_year = date.today().year
+
+    col1, col2, col3 = st.columns([1,2,1])
+
+    if col1.button("<- Previous"):
+        if st.session_state.cal_mont ==1:
+            st.session_state.cal_month =12
+            st.session_state.cal_year-=1
+        else:
+            st.session_state.cal_month-=1
+        st.rerun()
+
+    with col2:
+        month_name=calendar.month_name[st.session_state.cal_month]
+        st.markdown(
+            f"<h2 style='text-align:center;'> {month_name} {st.session_state.cal_year} </h2>",
+            unsafe_allow_html=True
+        )
 
     if df.empty:
         st.info("No tasks with dates")
