@@ -137,46 +137,100 @@ if page=="Calendar":
             unsafe_allow_html=True
         )
 
-    if df.empty:
-        st.info("No tasks with dates")
-    else:
-        events=[]
+    if col3.butto("Next ->"):
+        if st.session_state.cal_month ==12:
+            st.session_state.cal_month=1
+            st.session_state.cal_year +=1
+        else:
+            st.session_state.cal_month +=1
+        st.rerun()
+
+    tasks_by_date={}
+
+    if not df.empty:
         
         for _, row in df.iterrows():
             if row["deadline"]:
-                events.append({
-                    "Date": row["deadline"],
-                    "Task": row["title"],
+                task_date=row["deadline"] 
+                if task_date in tasks_by_date:
+                    tasks_by_date[task_date]=[]
+                tasks_by_date[task_date].append({
+                    "Title": row["title"],
                     "Course": row["course"],
                     "Priority": row["priority"],
                     "Status": row["status"]
                 })
-        
-        if events:
-            cal_df=pd.DataFrame(events)
-            cal_df=cal_df.sort_values(by="Date")
+    week_days=["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    cols=st.columns(7)
+    for i, day_name in enumerate(week_days):
+        cols[i].markdown(f"**{day_name}**")
 
-            st.subheader("Upcoming Tasks")
-            st.dataframe(cal_df, use_container_width=True)
+    cal=calendar.Calendar(firstweekday=0)
+    month_days=cal.monthdayscalendar(st.session_state.cal_year, st.session_state.cal_month)
 
-            st.subheader("By Date")
+    for week in month_days:
+        week_cols=st.columns(7)
 
-            grouped=cal_df.groupby("Date")
-
-            for date_key, group in grouped:
-                st.markdown(f"### {date_key}")
-
-                for _, task in group.iterrows():
-                    if task["Status"]=="Done":
-                        color="🟢"
-                    elif task["Status"] == "In Progress":
-                        color="🟡"
+        for i, day_num in enumerate(week):
+                with week_cols[i]:
+                    if day_num==0:
+                        st.markdown(
+                            """
+                            <div style=" Height:140px;
+                            border: 1px solid #222;
+                            border-radius: 12px;
+                            background-color:#0f0f0f;
+                            "></div>
+                            """,
+                            unsafe_allow_html=True
+                        )   
                     else:
-                        color="🔴"
-                    st.markdown(f"""
-                    - **{task['Task']}**
-                    {task['Course']} | {task['Priority']} | {task['Status']}            
-                    """)
+                        current_date=date(
+                            st.session_state.cal_year,
+                            st.session_state.cal_month,
+                            day_num
+                        ).isoformat()
+
+                        day_tasks = tasks_by_date.get(current_date, [])
+
+                        html = f"""
+                        <div style="
+                        min-height:140px;
+                        border: 1px solid #333;
+                        border-radius: 12px;
+                        padding:10px;
+                        margin-bottom:8px;
+                        background-color:#111;
+                        ">
+                        <div style="
+                        font-weight:bold;
+                        font-size:18px;
+                        margin-bottom:8px;
+                        ">{day_num}</div>
+                        """
+                        for task in day_tasks:
+                            if task["Status"]=="Done":
+                                color="🟢"
+                            elif task["Status"] == "In Progress":
+                                color="🟡"
+                            else:
+                                color="🔴"
+                            html += f"""
+                            <div style="
+                            background:{color};
+                            color:white;
+                            padding:6px 8px;
+                            border-radius:8px;
+                            margin-bottom:6px;
+                            font-size:12px;
+                            line-height:1.3;
+                            "> 
+                            {task['title']}<br>
+                            <span style="opacity=0.9;"> {task['course']}</span>
+                            </div>
+                            """
+                        html +="</div"
+                        st.markdown(html, unsafe_allow_html=True)
         
         else:
             st.info("no deadlines yet")
