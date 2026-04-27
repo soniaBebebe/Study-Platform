@@ -123,7 +123,7 @@ if page=="Calendar":
     col1, col2, col3 = st.columns([1,2,1])
 
     if col1.button("<- Previous"):
-        if st.session_state.cal_mont ==1:
+        if st.session_state.cal_month ==1:
             st.session_state.cal_month =12
             st.session_state.cal_year-=1
         else:
@@ -137,7 +137,7 @@ if page=="Calendar":
             unsafe_allow_html=True
         )
 
-    if col3.butto("Next ->"):
+    if col3.button("Next ->"):
         if st.session_state.cal_month ==12:
             st.session_state.cal_month=1
             st.session_state.cal_year +=1
@@ -152,11 +152,11 @@ if page=="Calendar":
         for _, row in df.iterrows():
             if row["deadline"]:
                 task_date=row["deadline"] 
-                if task_date in tasks_by_date:
+                if task_date not in tasks_by_date:
                     tasks_by_date[task_date]=[]
                 tasks_by_date[task_date].append({
-                    "Title": row["title"],
-                    "Course": row["course"],
+                    "title": row["title"],
+                    "course": row["course"],
                     "Priority": row["priority"],
                     "Status": row["status"]
                 })
@@ -229,7 +229,7 @@ if page=="Calendar":
                             <span style="opacity=0.9;"> {task['course']}</span>
                             </div>
                             """
-                        html +="</div"
+                        html +="</div>"
                         st.markdown(html, unsafe_allow_html=True)
         
         else:
