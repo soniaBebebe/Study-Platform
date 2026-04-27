@@ -210,11 +210,14 @@ if page=="Calendar":
                         """
                         for task in day_tasks:
                             if task["Status"]=="Done":
-                                color="🟢"
+                                color="#1f7a1f"
+                                emoji="🟢"
                             elif task["Status"] == "In Progress":
-                                color="🟡"
+                                color="#9a7b00"
+                                emoji="🟡"
                             else:
-                                color="🔴"
+                                color="#8b1e1e"
+                                emoji="🔴"
                             html += f"""
                             <div style="
                             background:{color};
@@ -225,8 +228,8 @@ if page=="Calendar":
                             font-size:12px;
                             line-height:1.3;
                             "> 
-                            {task['title']}<br>
-                            <span style="opacity=0.9;"> {task['course']}</span>
+                            {emoji} {task['title']}<br>
+                            <span style="opacity:0.9;"> {task['course']}</span>
                             </div>
                             """
                         html +="</div>"
