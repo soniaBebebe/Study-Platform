@@ -157,8 +157,8 @@ if page=="Calendar":
                 tasks_by_date[task_date].append({
                     "title": row["title"],
                     "course": row["course"],
-                    "Priority": row["priority"],
-                    "Status": row["status"]
+                    "priority": row["priority"],
+                    "status": row["status"]
                 })
     week_days=["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
     cols=st.columns(7)
@@ -176,7 +176,7 @@ if page=="Calendar":
                     if day_num==0:
                         st.markdown(
                             """
-                            <div style=" Height:140px;
+                            <div style="height:140px;
                             border: 1px solid #222;
                             border-radius: 12px;
                             background-color:#0f0f0f;
@@ -209,10 +209,10 @@ if page=="Calendar":
                         ">{day_num}</div>
                         """
                         for task in day_tasks:
-                            if task["Status"]=="Done":
+                            if task["status"]=="Done":
                                 color="#1f7a1f"
                                 emoji="🟢"
-                            elif task["Status"] == "In Progress":
+                            elif task["status"] == "In Progress":
                                 color="#9a7b00"
                                 emoji="🟡"
                             else:
@@ -232,11 +232,8 @@ if page=="Calendar":
                             <span style="opacity:0.9;"> {task['course']}</span>
                             </div>
                             """
-                        html +="</div>"
+                        html +="""</div>"""
                         st.markdown(html, unsafe_allow_html=True)
-        
-        else:
-            st.info("no deadlines yet")
 
 if page=="Tasks":
     st.title("Task Manager")
@@ -245,7 +242,7 @@ if page=="Tasks":
         course=st.text_input("subject")
         priority=st.selectbox("Priority", ["high", "Medium", "Low"])
         deadline=st.date_input("Deadline")
-        status=st.selectbox("Status", ["Open", "In Progress", "Done"])
+        status=st.selectbox("status", ["Open", "In Progress", "Done"])
 
         if st.form_submit_button("Add"):
             if title:
@@ -289,7 +286,7 @@ if page=="Tasks":
                     key=f"priority_{row['id']}"
                 )
                 new_status=st.selectbox(
-                    "Status", ["Open", "In Progress", "Done"],
+                    "status", ["Open", "In Progress", "Done"],
                     index=["Open", "In Progress", "Done"].index(row["status"]),
                     key=f"status_{row['id']}"
                 )
