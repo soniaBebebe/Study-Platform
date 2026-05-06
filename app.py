@@ -58,7 +58,7 @@ def load_df():
 st.set_page_config(page_title="Study OS", layout="wide")
 
 st.sidebar.title("Study OS")
-page=st.sidebar.radio("Navigation",  ["Dashboard", "Tasks", "Calendar"])
+page=st.sidebar.radio("Navigation",  ["Dashboard", "Tasks", "Calendar", "Files"])
 
 if page=="Dashboard":
     st.title("Study OS Dashboard")
@@ -238,6 +238,49 @@ if page=="Calendar":
                             html += "</div>"
                         # st.markdown(html, unsafe_allow_html=True)
                         components.html(html, height=160)
+
+if page=="Files":
+    st.title("File Manager")
+
+    upload_dir=Path("uploads")
+    upload_dir.mkdir(exist_ok=True)
+
+    uploaded_file=st.file_uploader(
+        "Upload lecture notes or PDFs",
+        type=["pdf", "txt", "docx", "png", "jpg"]
+    )
+
+    if uploaded_file is not None:
+        save_path=upload_dir/uploaded_file.name
+        with open(save_path, "wb") as f:
+            f.write(uploaded_file.getbuffer())
+        
+        st.success(f"Uploaded: {uploaded_file.name}")
+    
+    st.divider()
+
+    files=list(upload_dir.glob("*"))
+
+    if not files:
+        st.info("No uploaded files")
+    else:
+        st.subheader("Your Files")
+
+        for file in files:
+            col1,col2,col3=st.columns([4,1,1])
+            col1.markdown(f"{file.name}")
+
+            with open(file,"rb") as f:
+                col2.download_button(
+                    "Download",
+                    data=f,
+                    file_name=file.name,
+                    key=f"download_{file.name}"
+                )
+
+            if col3.button("Delete", key=f"delete_{file.name}"):
+                file.unlink()
+                st.rerun()
 
 if page=="Tasks":
     st.title("Task Manager")
