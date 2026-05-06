@@ -5,6 +5,7 @@ from pathlib import Path
 import streamlit as st
 import calendar
 import streamlit.components.v1 as components
+import base64
 
 DB_PATH="study_os.db"
 
@@ -267,7 +268,7 @@ if page=="Files":
         st.subheader("Your Files")
 
         for file in files:
-            col1,col2,col3=st.columns([4,1,1])
+            col1,col2,col3, col4=st.columns([4,1,1,1])
             col1.markdown(f"{file.name}")
 
             with open(file,"rb") as f:
@@ -277,6 +278,20 @@ if page=="Files":
                     file_name=file.name,
                     key=f"download_{file.name}"
                 )
+            if file.suffix==".pdf":
+                if col3.button("Preview", key=f"preview_{file.name}"):
+
+                    with open(file,"rb") as pdf_file:
+                        base64_pdf=base64.b64encode(pdf_file.read()).decode("utf-8")
+                    pdf_display=f"""
+                    <iframe
+                    src="data:application/pdf;base64,{base64_pdf}"
+                    width="100%"
+                    height="800px"
+                    type="application/pdf">
+                    </iframe>
+                    """
+                    st.markdown(pdf_display, unsafe_allow_html=True)
 
             if col3.button("Delete", key=f"delete_{file.name}"):
                 file.unlink()
