@@ -4,6 +4,7 @@ import pandas as pd
 from pathlib import Path
 import streamlit as st
 import calendar
+import streamlit.components.v1 as components
 
 DB_PATH="study_os.db"
 
@@ -227,20 +228,23 @@ if page=="Calendar":
                             margin-bottom:6px;
                             font-size:12px;
                             line-height:1.3;
-                            "> 
+                            ">
                             {emoji} {task['title']}<br>
-                            <span style="opacity:0.9;"> {task['course']}</span>
+                            <span style="opacity:0.9;">
+                            {task['course']}
+                            </span>
                             </div>
                             """
-                        html +="""</div>"""
-                        st.markdown(html, unsafe_allow_html=True)
+                            html += "</div>"
+                        # st.markdown(html, unsafe_allow_html=True)
+                        components.html(html, height=160)
 
 if page=="Tasks":
     st.title("Task Manager")
     with st.form("add_task"):
         title=st.text_input("Name")
         course=st.text_input("subject")
-        priority=st.selectbox("Priority", ["high", "Medium", "Low"])
+        priority=st.selectbox("Priority", ["High", "Medium", "Low"])
         deadline=st.date_input("Deadline")
         status=st.selectbox("status", ["Open", "In Progress", "Done"])
 
