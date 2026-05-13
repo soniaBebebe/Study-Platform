@@ -69,7 +69,7 @@ def load_df():
 st.set_page_config(page_title="Study OS", layout="wide")
 
 st.sidebar.title("Study OS")
-page=st.sidebar.radio("Navigation",  ["Dashboard", "Tasks", "Calendar", "Files", "Notes"])
+page=st.sidebar.radio("Navigation",  ["Dashboard", "Tasks", "Calendar", "Files", "Notes", "Focus"])
 
 if page=="Dashboard":
     st.title("Study OS Dashboard")
@@ -445,3 +445,65 @@ if page=="Notes":
                     )
 
                     st.rerun()
+
+if page=="Focus":
+    st.title("Focus Mode")
+    st.subheader("Pomodoro Timer")
+
+    if "focus_running" not in st.session_state:
+        st.session_state.focus_running=False
+    
+    if "focus_seconds" not in st.session_state:
+        st.session_state.focus_seconds=0.5*60
+    
+    if "focus_sessions" not in st.session_state:
+        st.session_state.focus_sessions=0
+
+    minutes=st.session_state.focus_seconds //60
+    seconds = st.session_state.focus_seconds %60
+
+    st.markdown(
+        f"""
+        <h1 style='text-align:center;
+            font-size:80px;'>
+            {minutes:02}:{seconds:02}
+        </h1>
+        """,
+        unsafe_allow_html=True
+    )
+
+    col1,col2,col3=st.columns(3)
+
+    if col1.button("Start"):
+        st.session_state.focus_running=True
+    
+    if col2.button("Pause"):
+        st.session_state.focus_running=False
+    
+    if col3.button("Reset"):
+        st.session_state.focus_running=False
+        st.session_state.focus_seconds=0.5*60
+
+    if st.session_state.focus_running:
+        import time
+
+        time.sleep(1)
+
+        st.session_state.focus_seconds-=1
+        if st.session_state.focus_seconds<=0:
+            st.session_state.focus_running=False
+            st.session_state.focus_sessions +=1
+
+            st.success("Focus Session Completed!")
+            st.balloons()
+            st.session_state.focus_seconds=0.5*60
+        
+        st.rerun()
+    
+    st.divider()
+    st.subheader("Focus Statistics")
+
+    st.metric(
+        "Completed Sessions",
+        st.session_state.focus_sessions
+    )
