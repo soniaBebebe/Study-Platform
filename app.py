@@ -30,6 +30,16 @@ def init_db():
                 created_at TEXT
                 )
                 """)
+    
+    cur.execute("""
+                CREATE TABLE IF NOT EXISTS notes(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL,
+                content TEXT,
+                created_at TEXT
+                )
+                """)
+    
     conn.commit()
     conn.close()
 
@@ -59,7 +69,7 @@ def load_df():
 st.set_page_config(page_title="Study OS", layout="wide")
 
 st.sidebar.title("Study OS")
-page=st.sidebar.radio("Navigation",  ["Dashboard", "Tasks", "Calendar", "Files"])
+page=st.sidebar.radio("Navigation",  ["Dashboard", "Tasks", "Calendar", "Files", "Notes"])
 
 if page=="Dashboard":
     st.title("Study OS Dashboard")
@@ -377,4 +387,61 @@ if page=="Tasks":
                 if col2.button("Delete", key=f"delete_{row['id']}"):
                     run_query("DELETE FROM tasks WHERE id=?", (row["id"],))
                     st.warning("Deleted!")
+                    st.rerun()
+if page=="Notes":
+    st.title("Notes System")
+    st.subheader("Create Note")
+
+    note_title=st.text_input("Note Title")
+
+    note_content=st.text_area(
+        "Markdown Content",
+        height=300
+    )
+    col1, col2 = st.columns(2)
+
+    if col1.button("Save Note"):
+        if note_title:
+            run_query(
+                """
+                INSERT INTO notes(title,content,created_at)
+                VALUES(?,?,?)
+                """,
+                (
+                    note_title,
+                    note_content,
+                    datetime.now().isoformat()
+                )
+            )
+            st.success("Note saved!!")
+            st.rerun()
+
+    st.subheader("Live Preview")
+    st.markdown(note_content)
+    st.divider()
+
+    notes_df=pd.read_sql_query(
+        "SELECT * FROM notes ORDER BY created_at DESC",
+        get_conn()
+    )
+
+    st.subheader("Your Notes")
+
+    if notes_df.empty:
+        st.info("No notes yet :(")
+    else:
+        for _, note in notes_df.iterrows():
+            with st.expander(f"{note['title']}"):
+                st.markdown(note["content"])
+                col1,col2=st.columns(2)
+
+                if col2.button(
+                    "Delete",
+                    key=f"delete_note_{note['id']}"
+                ):
+                    run_query(
+                        "DELETE FROM notes WHERE id=?",
+                        (note["id"],)
+                    )
+
                     st.rerun()
