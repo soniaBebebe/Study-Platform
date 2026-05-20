@@ -80,6 +80,97 @@ def load_df():
     return df
 
 st.set_page_config(page_title="Study OS", layout="wide")
+st.markdown("""
+            <style>
+            
+            .stApp{
+            background:linear-gradient(
+            180deg,
+            #0b0f19 0%,
+            #111827 100%
+            );
+            color:white;
+            }
+            
+            section[data-testid="stSidebar"]{
+            background-color: #0f172a;
+            border-right:1px solid #1e293b;
+            }
+
+            section[data-testid="stSidebar"]*{
+            color:white !important;
+            }
+
+            .stButton>button{
+            width:100%;
+            border-radius:12px;
+            border:1px solid #334155;
+            background-color:#111827;
+            color:white;
+            transitin: all 0.2s ease-in-out;
+            }
+
+            .stButton>button:hover{
+            transform:translateY(-2px);
+            background-color:#1e293b;
+            border-color:#60a5fa;
+            box-shadow: 0 4px 12px rgba(96,165,250,0.25);
+            }
+
+            .stTextInput input, 
+            .stTextArea textarea{
+            border-radius:12px !important;
+            background-color:#111827 !important;
+            color:white !important;
+            border:1px solid #334155 !important;
+            }
+
+            .stSelectbox div[data-baseweb="select"]{
+            background-color:#111827 !important;
+            border-redius:12px !important;
+            }
+
+            [data-testid="stMetric"]{
+            background:rgba(17,24,39,0.7);
+            border:1px solid #334155;
+            padding:16px;
+            border-redius:16px;
+            background-filter:blur(12px);
+            }
+
+            .streamlit-expanderHeader{
+            background-color:#111827;
+            border-radius:10px;
+            }
+
+            div[data-testid="column"]>div{
+            transition:all 0.2s easi-in-out;
+            }
+
+            div[data-testid="column"]>div:hover{
+            transform:scale(1.02);
+            }
+
+            ::-webkit-scrollbar{
+            width:10px;
+            }
+
+            ::-webkit-scrollbar-track{
+            background:#0f172a;
+            }
+
+            ::-webkit-scrollbar-thumb{
+            background:#334155;
+            border-radius:10px;
+            }
+
+            ::-webkit-scrollbar-thumb:hover{
+            background:#475569;
+            }
+            )
+            </style>
+            """,
+            unsafe_allow_html=True)
 
 st.sidebar.title("Study OS")
 page=st.sidebar.radio("Navigation",  ["Dashboard", "Tasks", "Calendar", "Files", "Notes", "Focus"])
@@ -508,7 +599,7 @@ if page=="Focus":
             st.session_state.focus_sessions +=1
 
             st.success("Focus Session Completed!")
-            play_sound("sounds/yippee-tbh.mp3")
+            play_sound("sounds/barkfart.mp3")
             st.balloons()
             st.session_state.focus_seconds=0.5*60
         
