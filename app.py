@@ -508,7 +508,7 @@ if page=="Focus":
             st.session_state.focus_sessions +=1
 
             st.success("Focus Session Completed!")
-            play_sound("sound/yippee-tbh.mp3")
+            play_sound("sounds/yippee-tbh.mp3")
             st.balloons()
             st.session_state.focus_seconds=0.5*60
         
