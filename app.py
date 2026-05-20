@@ -173,9 +173,9 @@ st.markdown("""
             unsafe_allow_html=True)
 
 st.sidebar.title("Study OS")
-page=st.sidebar.radio("Navigation",  ["Dashboard", "Tasks", "Calendar", "Files", "Notes", "Focus"])
+page=st.sidebar.radio("Navigation",  ["📊 Dashboard", "📋 Tasks", "📅 Calendar", "📂 Files", "📝 Notes", "⏱️ Focus"])
 
-if page=="Dashboard":
+if page=="📊 Dashboard":
     st.title("Study OS Dashboard")
     df=load_df()
     total_tasks=len(df)
@@ -226,7 +226,7 @@ if page=="Dashboard":
             {row['course']} | {row['deadline']} | {row['status']}            
             """)
 
-if page=="Calendar":
+if page=="📅 Calendar":
     st.title("calendar")
 
     df=load_df()
@@ -354,7 +354,7 @@ if page=="Calendar":
                         # st.markdown(html, unsafe_allow_html=True)
                         components.html(html, height=160)
 
-if page=="Files":
+if page=="📂 Files":
     st.title("File Manager")
 
     upload_dir=Path("uploads")
@@ -411,7 +411,7 @@ if page=="Files":
                 file.unlink()
                 st.rerun()
 
-if page=="Tasks":
+if page=="📋 Tasks":
     st.title("Task Manager")
     with st.form("add_task"):
         title=st.text_input("Name")
@@ -492,7 +492,7 @@ if page=="Tasks":
                     run_query("DELETE FROM tasks WHERE id=?", (row["id"],))
                     st.warning("Deleted!")
                     st.rerun()
-if page=="Notes":
+if page=="📝 Notes":
     st.title("Notes System")
     st.subheader("Create Note")
 
@@ -550,7 +550,7 @@ if page=="Notes":
 
                     st.rerun()
 
-if page=="Focus":
+if page=="⏱️ Focus":
     st.title("Focus Mode")
     st.subheader("Pomodoro Timer")
 
