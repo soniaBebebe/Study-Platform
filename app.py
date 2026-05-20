@@ -14,6 +14,19 @@ def get_conn():
     conn.row_factory=sqlite3.Row
     return conn
 
+def play_sound(file_path):
+    with open(file_path, "rb") as audio_file:
+        audio_bytes=audio_file.read()
+    
+    b64=base64.b64encode(audio_bytes).decode()
+
+    md=f"""
+        <audio autoplay>
+            <source src="data:audio/mp3; base64,{b64}" type="audio/mp3">
+        </audio>
+        """
+    st.markdown(md, unsafe_allow_html=True)
+
 def init_db():
     conn=get_conn()
     cur=conn.cursor()
@@ -454,7 +467,7 @@ if page=="Focus":
         st.session_state.focus_running=False
     
     if "focus_seconds" not in st.session_state:
-        st.session_state.focus_seconds=0.5*60
+        st.session_state.focus_seconds=0.1*60
     
     if "focus_sessions" not in st.session_state:
         st.session_state.focus_sessions=0
@@ -482,7 +495,7 @@ if page=="Focus":
     
     if col3.button("Reset"):
         st.session_state.focus_running=False
-        st.session_state.focus_seconds=0.5*60
+        st.session_state.focus_seconds=0.1*60
 
     if st.session_state.focus_running:
         import time
@@ -495,6 +508,7 @@ if page=="Focus":
             st.session_state.focus_sessions +=1
 
             st.success("Focus Session Completed!")
+            play_sound("sound/yippee-tbh.mp3")
             st.balloons()
             st.session_state.focus_seconds=0.5*60
         
