@@ -167,6 +167,41 @@ st.markdown("""
             ::-webkit-scrollbar-thumb:hover{
             background:#475569;
             }
+
+            .dashboard-card{
+            background: linear-gradient(135deg, #111827, #1e293b);
+            border:1px solid #334155;
+            border-radius:20px;
+            padding:22px;
+            box-shadow:0 10px 30px rgba(0,0,0,0.25);
+            transition:all 0.25s ease-in-out;
+            min-height:130px;
+            }
+
+            .dashboard-card:hover{
+            transform:translateY(-6px) scale(1.02);
+            border-color:#60a5fa;
+            box-shadow:0 18px 40px rgba(96, 165, 250, 0.25);
+            }
+
+            .dashboard-card h3{
+            font-size: 16px;
+            color:#cbd5e1;
+            margin-bottom:12px;
+            }
+
+            .dashboard-card .value{
+            font-size:36px;
+            font-weight:800;
+            color:white;
+            }
+
+            .dashboard-card .hint{
+            font-size:13px;
+            color:#94a3b8;
+            margin-top:8px;
+            }
+
             )
             </style>
             """,
@@ -199,14 +234,47 @@ if page=="📊 Dashboard":
         
         col1, col2, col3, col4=st.columns(4)
 
-        col1.metric("Total Tasks", total_tasks)
-        col2.metric("Done", done_tasks)
-        col3.metric("Urgent", urgent)
-        col4.metric("Overdue", overdue)
+        # col1.metric("Total Tasks", total_tasks)
+        # col2.metric("Done", done_tasks)
+        # col3.metric("Urgent", urgent)
+        # col4.metric("Overdue", overdue)
+
+        col1.markdown(f"""
+                      <div class="dashboard-card">
+                      <h3>Total Tasks</h3>
+                      <div class="value">{total_tasks}</div>
+                      <div class="hint">All created tasks</div>
+                      </div>
+                      """,
+                      unsafe_allow_html=True)
+        col2.markdown(f"""
+                      <div class="dashboard-card">
+                      <h3>Done</h3>
+                      <div class="value">{done_tasks}</div>
+                      <div class="hint">Completed tasks</div>
+                      </div>
+                      """,
+                      unsafe_allow_html=True)
+        col3.markdown(f"""
+                      <div class="dashboard-card">
+                      <h3>Urgent</h3>
+                      <div class="value">{urgent}</div>
+                      <div class="hint">Due today or tomorrow</div>
+                      </div>
+                      """,
+                      unsafe_allow_html=True)
+        col4.markdown(f"""
+                      <div class="dashboard-card">
+                      <h3>Overdue</h3>
+                      <div class="value">{overdue}</div>
+                      <div class="hint">Missed deadlines</div>
+                      </div>
+                      """,
+                      unsafe_allow_html=True)
 
         st.divider()
 
-        st.subheader("Activity Cahrt")
+        st.subheader("Activity Chart")
 
         if not df.empty:
             df["created_at"] = pd.to_datetime(df["created_at"])
