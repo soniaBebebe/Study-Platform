@@ -53,6 +53,17 @@ def init_db():
                 )
                 """)
     
+    cur.execute("""
+                CREATE TABLE IF NOT EXISTS grades(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                course TEXT NOT NULL,
+                credits REAL NOT NULL,
+                current_grade REAL NOT NULL,
+                target_grade REAL,
+                created_at TEXT
+                )
+                """)
+    
     conn.commit()
     conn.close()
 
@@ -78,6 +89,46 @@ def load_df():
     df=pd.read_sql_query("SELECT * FROM tasks", conn)
     conn.close()
     return df
+
+def grade_to_points(grade):
+    if grade>=95:
+        return 4.0
+    elif grade>= 90:
+        return 3.7
+    elif grade>= 85:
+        return 3.3
+    elif grade>= 80:
+        return 3.0
+    elif grade>= 75:
+        return 2.7
+    elif grade>= 70:
+        return 2.3
+    elif grade>= 65:
+        return 2.0
+    elif grade>= 60:
+        return 1.7
+    else:
+        return 0.0
+    
+def calculate_gpa(grades_df):
+    if grades_df.empty:
+        return 0
+    
+    total_points=0
+    total_credits=0
+
+    for _, row in grades_df.iterrows():
+        points=grade_to_points(row["current_grade"])
+        credits=row["credits"]
+
+        total_points+=points*credits
+        total_credits+=credits
+
+    if total_credits==0:
+        return 0
+    
+    return round(total_points/total_credits, 2)
+    
 
 st.set_page_config(page_title="Study OS", layout="wide")
 st.markdown("""
@@ -208,7 +259,7 @@ st.markdown("""
             unsafe_allow_html=True)
 
 st.sidebar.title("Study OS")
-page=st.sidebar.radio("Navigation",  ["📊 Dashboard", "📋 Tasks", "📅 Calendar", "📂 Files", "📝 Notes", "⏱️ Focus"])
+page=st.sidebar.radio("Navigation",  ["📊 Dashboard", "📋 Tasks", "📅 Calendar", "📂 Files", "📝 Notes", "⏱️ Focus", "GPA"])
 
 if page=="📊 Dashboard":
     st.title("Study OS Dashboard")
@@ -592,10 +643,17 @@ if page=="📝 Notes":
     st.markdown(note_content)
     st.divider()
 
+    search=st.text_input("search notes")
     notes_df=pd.read_sql_query(
         "SELECT * FROM notes ORDER BY created_at DESC",
         get_conn()
     )
+
+    if search:
+        notes_df=notes_df[
+            notes_df["title"].str.contains(search, case=False, na=False)|
+            notes_df["content"].str.contains(search, case=False, na=False)
+            ]
 
     st.subheader("Your Notes")
 
@@ -604,18 +662,55 @@ if page=="📝 Notes":
     else:
         for _, note in notes_df.iterrows():
             with st.expander(f"{note['title']}"):
-                st.markdown(note["content"])
-                col1,col2=st.columns(2)
+                # st.markdown(note["content"])
+                # col1,col2=st.columns(2)
 
-                if col2.button(
-                    "Delete",
-                    key=f"delete_note_{note['id']}"
-                ):
+                # if col2.button(
+                #     "Delete",
+                #     key=f"delete_note_{note['id']}"
+                # ):
+                #     run_query(
+                #         "DELETE FROM notes WHERE id=?",
+                #         (note["id"],)
+                #     )
+
+                #     st.rerun()
+
+                edit_title=st.text_input(
+                    "Edit title",
+                    value=note["title"],
+                    key=f"edit_note_title_{note['id']}"
+                )
+
+                edit_content=st.text_area(
+                    "Edit content",
+                    value=note["content"],
+                    height=250,
+                    key=f"edit_note_content_{note['id']}"
+                )
+
+                st.markdown("Preview")
+                st.markdown(edit_content)
+
+                col1, col2 = st.columns(2)
+
+                if col1.button("Save hanges", key=f"save_note_{note['id']}"):
+                    run_query(
+                        """
+                            UPDATE notes
+                            SET title=?, content=?
+                            WHERE id=?
+                        """,
+                        (edit_title, edit_content, note["id"])
+                    )
+                    st.success("Note Updated!")
+                    st.rerun()
+
+                if col2.button("Delete", key=f"delete_note_{note['id']}"):
                     run_query(
                         "DELETE FROM notes WHERE id=?",
                         (note["id"],)
                     )
-
                     st.rerun()
 
 if page=="⏱️ Focus":
@@ -680,3 +775,10 @@ if page=="⏱️ Focus":
         "Completed Sessions",
         st.session_state.focus_sessions
     )
+
+if page=="GPA":
+    st.title("GPA Calculator")
+    st.subheader("Add Course")
+
+    with st.form("add_grade"):
+        #prodolzhit otsuyda
