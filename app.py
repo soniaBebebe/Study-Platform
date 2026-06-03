@@ -31,8 +31,6 @@ def init_db():
     conn=get_conn()
     cur=conn.cursor()
 
-    cur.execute("DROP TABLE IF EXISTS grades")
-
     cur.execute("""
                 CREATE TABLE IF NOT EXISTS grades(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -539,7 +537,7 @@ if page=="📂 Files":
                     """
                     st.markdown(pdf_display, unsafe_allow_html=True)
 
-            if col3.button("Delete", key=f"delete_{file.name}"):
+            if col4.button("Delete", key=f"delete_{file.name}"):
                 file.unlink()
                 st.rerun()
 
@@ -803,7 +801,7 @@ if page=="GPA":
             if course:
                 run_query(
                     """
-                    INSERT INTO grades(course, current_grade, target_grade, created_at)
+                    INSERT INTO grades(course, credits, current_grade, target_grade, created_at)
                     VALUES(?,?,?,?,?)
                     """,
                     (
