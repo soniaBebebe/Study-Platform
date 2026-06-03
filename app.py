@@ -31,6 +31,19 @@ def init_db():
     conn=get_conn()
     cur=conn.cursor()
 
+    cur.execute("DROP TABLE IF EXISTS grades")
+
+    cur.execute("""
+                CREATE TABLE IF NOT EXISTS grades(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                course TEXT NOT NULL,
+                credits REAL NOT NULL,
+                current_grade REAL NOT NULL,
+                target_grade REAL,
+                created_at TEXT
+                )
+                """)
+
     cur.execute("""
         CREATE TABLE IF NOT EXISTS tasks(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -781,4 +794,71 @@ if page=="GPA":
     st.subheader("Add Course")
 
     with st.form("add_grade"):
-        #prodolzhit otsuyda
+        course=st.text_input("Course Name")
+        credits=st.number_input("Credits", min_value=1.0, max_value=10.0, value=3.0)
+        current_grade=st.number_input("Current grade(%)", min_value=0.0, max_value=100.0, value=80.0)
+        target_grade=st.number_input("Target grade(%)", min_value=0.0, max_value=100.0, value=90.0)
+
+        if st.form_submit_button("Add Course"):
+            if course:
+                run_query(
+                    """
+                    INSERT INTO grades(course, current_grade, target_grade, created_at)
+                    VALUES(?,?,?,?,?)
+                    """,
+                    (
+                        course,
+                        credits,
+                        current_grade,
+                        target_grade,
+                        datetime.now().isoformat()
+                    )
+                )
+                st.success("Course added!")
+                st.rerun()
+    conn=get_conn()
+    grades_df=pd.read_sql_query(
+        "SELECT * FROM grades ORDER BY created_at DESC",
+        conn
+    )
+    conn.close()
+    if grades_df.empty:
+        st.info("No courses yet")
+    else:
+        gpa=calculate_gpa(grades_df)
+        st.subheader("Your GPA")
+        st.markdown(f"""
+                    <div class="dashboard-card">
+                        <h3> Estimated GPA</h3>
+                        <div class="value">{gpa}</div>
+                        <div class="hint">Based on current grades and credits</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+        st.divider()
+
+        st.subheader("Courses")
+        for _, row in grades_df.iterrows():
+            with st.expander(f"{row['course']} | {row['current_grade']}%"):
+                delta=row["target_grade"] - row["current_grade"]
+
+                st.write(f"Credits: {row['credits']}")
+                st.write(f"Current grade: {row['current_grade']}%")
+                st.write(f"Target grade: {row['target_grade']}%")
+
+                if delta<=0:
+                    st.success("You are already at or above your target!")
+                elif delta <=5:
+                    st.info(f"You need +{delta:.1f}% to reach your target.")
+                elif delta <=10:
+                    st.warning(f"You need +{delta:.1f}%. This needs consisted work.")
+                else:
+                    st.error(f"You need +{delta:.1f}%. This is a difficult target.")
+
+                col1, col2=st.columns(2)
+
+                if col1.button("Delete", key=f"delete_grade_{row['id']}"):
+                    run_query(
+                        "DELETE FROM grades WHERE id=?",
+                        (row['id'],)
+                    )
+                    st.rerun()
