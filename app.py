@@ -166,17 +166,16 @@ st.markdown("""
             .stButton>button{
             width:100%;
             border-radius:12px;
-            border:1px solid #334155;
-            background-color:#111827;
+            border:none;
+            background-color:linear-gradient(135deg, #2563ed, #7c3aed);
             color:white;
-            transitin: all 0.2s ease-in-out;
+            font-weight:bold;
+            transition: all 0.2s ease-in-out;
             }
 
             .stButton>button:hover{
-            transform:translateY(-2px);
-            background-color:#1e293b;
-            border-color:#60a5fa;
-            box-shadow: 0 4px 12px rgba(96,165,250,0.25);
+            transform:translateY(-3px) scale(1.03);
+            box-shadow: 0 8px 20px rgba(59,130,246,0.4);
             }
 
             .stTextInput input, 
@@ -264,13 +263,27 @@ st.markdown("""
             margin-top:8px;
             }
 
+            div[data-testid="column"]:nth-child(1) .stButton button{
+            background-color:#16a34a !important;
+            color:white !important;
+            }
+
+            div[data-testid="column"]:nth-child(2) .stButton button{
+            background-color:#f59e0b !important;
+            color:white !important;
+            }
+            div[data-testid="column"]:nth-child(3) .stButton button{
+            background-color:#dc2626 !important;
+            color:white !important;
+            }
+
             )
             </style>
             """,
             unsafe_allow_html=True)
 
 st.sidebar.title("Study OS")
-page=st.sidebar.radio("Navigation",  ["📊 Dashboard", "📋 Tasks", "📅 Calendar", "📂 Files", "📝 Notes", "⏱️ Focus", "GPA"])
+page=st.sidebar.radio("Navigation",  ["📊 Dashboard", "📋 Tasks", "📅 Calendar", "📂 Files", "📝 Notes", "⏱️ Focus", "💯 GPA"])
 
 if page=="📊 Dashboard":
     st.title("Study OS Dashboard")
@@ -754,6 +767,13 @@ if page=="⏱️ Focus":
 
     if col1.button("Start"):
         st.session_state.focus_running=True
+        st.markdown("""
+                    <style>
+                    div[data-testid="column"]:nth-of-type(1) button{
+                    background-color:#2563eb;
+                    }
+                    </style>
+                    """, unsafe_allow_html=True)
     
     if col2.button("Pause"):
         st.session_state.focus_running=False
@@ -787,7 +807,7 @@ if page=="⏱️ Focus":
         st.session_state.focus_sessions
     )
 
-if page=="GPA":
+if page=="💯 GPA":
     st.title("GPA Calculator")
     st.subheader("Add Course")
 
@@ -835,8 +855,40 @@ if page=="GPA":
         st.divider()
 
         st.subheader("Courses")
+        st.subheader("Grade Chart")
+
+        chart_df=grades_df[["course","current_grade"]].set_index("course")
+        st.bar_chart(chart_df)
+
         for _, row in grades_df.iterrows():
             with st.expander(f"{row['course']} | {row['current_grade']}%"):
+                new_course=st.text_input(
+                    "edit course",
+                    value=row["course"],
+                    key=f"edit_course_{row['id']}"
+                )
+                new_credits=st.number_input(
+                    "Edit credits",
+                    min_value=1.0,
+                    max_value=10.0,
+                    value=float(row["credits"]),
+                    key=f"edit_credits_{row['id']}"
+                )
+                new_current_grade=st.number_input(
+                    "Edit current grade",
+                    min_value=1.0,
+                    max_value=100.0,
+                    value=float(row["current_grade"]),
+                    key=f"edit_current_grade_{row['id']}"
+                )
+                new_target_grade=st.number_input(
+                    "Edit target grade",
+                    min_value=1.0,
+                    max_value=100.0,
+                    value=float(row["target_grade"]),
+                    key=f"edit_target_grade_{row['id']}"
+                )
+
                 delta=row["target_grade"] - row["current_grade"]
 
                 st.write(f"Credits: {row['credits']}")
@@ -853,10 +905,30 @@ if page=="GPA":
                     st.error(f"You need +{delta:.1f}%. This is a difficult target.")
 
                 col1, col2=st.columns(2)
+                
+                if col1.button("Save", key=f"save_grade_{row['id']}"):
+                    run_query(
+                        """
+                            UPDATE grades
+                            SET course=?, credits=?, current_grade=?, target_grade=?
+                            WHERE id=?
+                        """,
+                        (
+                            new_course,
+                            new_credits,
+                            new_current_grade,
+                            new_target_grade,
+                            row["id"]
+                        )
+                    )
+                    st.success("Course updated!")
+                    st.rerun()
 
-                if col1.button("Delete", key=f"delete_grade_{row['id']}"):
+
+                if col2.button("Delete", key=f"delete_grade_{row['id']}"):
                     run_query(
                         "DELETE FROM grades WHERE id=?",
                         (row['id'],)
                     )
                     st.rerun()
+            
