@@ -765,7 +765,7 @@ if page=="⏱️ Focus":
 
     col1,col2,col3=st.columns(3)
 
-    if col1.button("Start"):
+    if col1.button("🟢 Start"):
         st.session_state.focus_running=True
         st.markdown("""
                     <style>
