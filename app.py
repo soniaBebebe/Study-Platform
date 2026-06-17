@@ -384,7 +384,7 @@ if page=="📅 Calendar":
     
     with col1:
         with stylable_container(
-            key="start_btn",
+            key="prevCalendar_btn",
             css_styles="""
             button{
                 background-color:#ffac24;
@@ -573,7 +573,7 @@ if page=="📂 Files":
 
             with col4:
                 with stylable_container(
-                    key="start_btn",
+                    key="deleteFiles_btn",
                     css_styles="""
                     button{
                         background-color:#990000;
@@ -664,7 +664,7 @@ if page=="📋 Tasks":
                     st.rerun()
                 with col2:
                     with stylable_container(
-                        key="bebebe_btn",
+                        key=f"task_delete_container_{row['id']}",
                         css_styles="""
                         button{
                             background-color:#990000;
@@ -690,7 +690,7 @@ if page=="📝 Notes":
 
     with col1:
         with stylable_container(
-            key="start_btn",
+            key="saveNotes_btn",
             css_styles="""
             button{
                 background-color:#55a852;
@@ -782,7 +782,7 @@ if page=="📝 Notes":
                     st.rerun()
                 with col2:
                     with stylable_container(
-                        key="delete_btn",
+                        key=f"note_delete_container_{note['id']}",
                         css_styles="""
                         button{
                             background-color:#990000;
@@ -827,7 +827,7 @@ if page=="⏱️ Focus":
 
     with col1:
         with stylable_container(
-            key="start_btn",
+            key="startTimer_btn",
             css_styles="""
             button{
                 background-color:#16a34a;
@@ -999,7 +999,7 @@ if page=="💯 GPA":
                 
                 with col1:
                     with stylable_container(
-                        key="start_btn",
+                        key=f"gpa_save_container_{row['id']}",
                         css_styles="""
                         button{
                             background-color:#55a852;
@@ -1027,10 +1027,10 @@ if page=="💯 GPA":
 
                 with col2:
                     with stylable_container(
-                        key="delete_btn",
+                        key=f"gpa_delete_container_{row['id']}",
                         css_styles="""
                         button{
-                            background-color:#9900;
+                            background-color:#990000;
                             color:white;
                         }
                         """
