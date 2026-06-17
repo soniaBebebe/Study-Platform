@@ -381,14 +381,24 @@ if page=="📅 Calendar":
         st.session_state.cal_year = date.today().year
 
     col1, col2, col3 = st.columns([1,2,1])
-
-    if col1.button("<- Previous"):
-        if st.session_state.cal_month ==1:
-            st.session_state.cal_month =12
-            st.session_state.cal_year-=1
-        else:
-            st.session_state.cal_month-=1
-        st.rerun()
+    
+    with col1:
+        with stylable_container(
+            key="start_btn",
+            css_styles="""
+            button{
+                background-color:#ffac24;
+                color:white;
+            }
+            """
+        ):
+            if st.button("<- Previous"):
+                if st.session_state.cal_month ==1:
+                    st.session_state.cal_month =12
+                    st.session_state.cal_year-=1
+                else:
+                    st.session_state.cal_month-=1
+                st.rerun()
 
     with col2:
         month_name=calendar.month_name[st.session_state.cal_month]
@@ -397,13 +407,23 @@ if page=="📅 Calendar":
             unsafe_allow_html=True
         )
 
-    if col3.button("Next ->"):
-        if st.session_state.cal_month ==12:
-            st.session_state.cal_month=1
-            st.session_state.cal_year +=1
-        else:
-            st.session_state.cal_month +=1
-        st.rerun()
+    with col3:
+        with stylable_container(
+            key="next_btn",
+            css_styles="""
+            button{
+                background-color:#60cf57;
+                color:white;
+            }
+            """
+        ):
+            if st.button("Next ->"):
+                if st.session_state.cal_month ==12:
+                    st.session_state.cal_month=1
+                    st.session_state.cal_year +=1
+                else:
+                    st.session_state.cal_month +=1
+                st.rerun()
 
     tasks_by_date={}
 
@@ -551,9 +571,19 @@ if page=="📂 Files":
                     """
                     st.markdown(pdf_display, unsafe_allow_html=True)
 
-            if col4.button("Delete", key=f"delete_{file.name}"):
-                file.unlink()
-                st.rerun()
+            with col4:
+                with stylable_container(
+                    key="start_btn",
+                    css_styles="""
+                    button{
+                        background-color:#990000;
+                        color:white;
+                    }
+                    """
+                ):
+                    if st.button("Delete", key=f"delete_{file.name}"):
+                        file.unlink()
+                        st.rerun()
 
 if page=="📋 Tasks":
     st.title("Task Manager")
@@ -632,10 +662,20 @@ if page=="📋 Tasks":
                     )
                     st.success("Updated!")
                     st.rerun()
-                if col2.button("Delete", key=f"delete_{row['id']}"):
-                    run_query("DELETE FROM tasks WHERE id=?", (row["id"],))
-                    st.warning("Deleted!")
-                    st.rerun()
+                with col2:
+                    with stylable_container(
+                        key="bebebe_btn",
+                        css_styles="""
+                        button{
+                            background-color:#990000;
+                            color:white;
+                        }
+                        """
+                    ):
+                        if st.button("Delete", key=f"delete_{row['id']}"):
+                            run_query("DELETE FROM tasks WHERE id=?", (row["id"],))
+                            st.warning("Deleted!")
+                            st.rerun()
 if page=="📝 Notes":
     st.title("Notes System")
     st.subheader("Create Note")
@@ -648,21 +688,31 @@ if page=="📝 Notes":
     )
     col1, col2 = st.columns(2)
 
-    if col1.button("Save Note"):
-        if note_title:
-            run_query(
-                """
-                INSERT INTO notes(title,content,created_at)
-                VALUES(?,?,?)
-                """,
-                (
-                    note_title,
-                    note_content,
-                    datetime.now().isoformat()
-                )
-            )
-            st.success("Note saved!!")
-            st.rerun()
+    with col1:
+        with stylable_container(
+            key="start_btn",
+            css_styles="""
+            button{
+                background-color:#55a852;
+                color:white;
+            }
+            """
+        ):
+            if st.button("Save Note"):
+                if note_title:
+                    run_query(
+                        """
+                        INSERT INTO notes(title,content,created_at)
+                        VALUES(?,?,?)
+                        """,
+                        (
+                            note_title,
+                            note_content,
+                            datetime.now().isoformat()
+                        )
+                    )
+                    st.success("Note saved!!")
+                    st.rerun()
 
     st.subheader("Live Preview")
     st.markdown(note_content)
@@ -730,13 +780,22 @@ if page=="📝 Notes":
                     )
                     st.success("Note Updated!")
                     st.rerun()
-
-                if col2.button("Delete", key=f"delete_note_{note['id']}"):
-                    run_query(
-                        "DELETE FROM notes WHERE id=?",
-                        (note["id"],)
-                    )
-                    st.rerun()
+                with col2:
+                    with stylable_container(
+                        key="delete_btn",
+                        css_styles="""
+                        button{
+                            background-color:#990000;
+                            color:white;
+                        }
+                        """
+                    ):
+                        if st.button("Delete", key=f"delete_note_{note['id']}"):
+                            run_query(
+                                "DELETE FROM notes WHERE id=?",
+                                (note["id"],)
+                            )
+                            st.rerun()
 
 if page=="⏱️ Focus":
     st.title("Focus Mode")
@@ -777,7 +836,7 @@ if page=="⏱️ Focus":
             """
         ):
             
-            if col1.button("🟢 Start"):
+            if st.button("Start"):
                 st.session_state.focus_running=True
         # st.markdown("""
         #             <style>
@@ -797,7 +856,7 @@ if page=="⏱️ Focus":
             }
             """
         ):
-            if col2.button("Pause"):
+            if st.button("Pause"):
                 st.session_state.focus_running=False
     
     with col3:
@@ -810,7 +869,7 @@ if page=="⏱️ Focus":
             }
             """
         ):
-            if col3.button("Reset"):
+            if st.button("Reset"):
                 st.session_state.focus_running=False
                 st.session_state.focus_seconds=0.1*60
 
@@ -938,29 +997,48 @@ if page=="💯 GPA":
 
                 col1, col2=st.columns(2)
                 
-                if col1.button("Save", key=f"save_grade_{row['id']}"):
-                    run_query(
+                with col1:
+                    with stylable_container(
+                        key="start_btn",
+                        css_styles="""
+                        button{
+                            background-color:#55a852;
+                            color:white;
+                        }
                         """
-                            UPDATE grades
-                            SET course=?, credits=?, current_grade=?, target_grade=?
-                            WHERE id=?
-                        """,
-                        (
-                            new_course,
-                            new_credits,
-                            new_current_grade,
-                            new_target_grade,
-                            row["id"]
-                        )
-                    )
-                    st.success("Course updated!")
-                    st.rerun()
+                    ):
+                        if st.button("Save", key=f"save_grade_{row['id']}"):
+                            run_query(
+                                """
+                                    UPDATE grades
+                                    SET course=?, credits=?, current_grade=?, target_grade=?
+                                    WHERE id=?
+                                """,
+                                (
+                                    new_course,
+                                    new_credits,
+                                    new_current_grade,
+                                    new_target_grade,
+                                    row["id"]
+                                )
+                            )
+                            st.success("Course updated!")
+                            st.rerun()
 
-
-                if col2.button("Delete", key=f"delete_grade_{row['id']}"):
-                    run_query(
-                        "DELETE FROM grades WHERE id=?",
-                        (row['id'],)
-                    )
-                    st.rerun()
+                with col2:
+                    with stylable_container(
+                        key="delete_btn",
+                        css_styles="""
+                        button{
+                            background-color:#9900;
+                            color:white;
+                        }
+                        """
+                    ):
+                        if st.button("Delete", key=f"delete_grade_{row['id']}"):
+                            run_query(
+                                "DELETE FROM grades WHERE id=?",
+                                (row['id'],)
+                            )
+                            st.rerun()
             
