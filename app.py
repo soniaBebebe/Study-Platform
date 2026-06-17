@@ -6,6 +6,7 @@ import streamlit as st
 import calendar
 import streamlit.components.v1 as components
 import base64
+from streamlit_extras.stylable_container import stylable_container
 
 DB_PATH="study_os.db"
 
@@ -765,22 +766,53 @@ if page=="⏱️ Focus":
 
     col1,col2,col3=st.columns(3)
 
-    if col1.button("🟢 Start"):
-        st.session_state.focus_running=True
-        st.markdown("""
-                    <style>
-                    div[data-testid="column"]:nth-of-type(1) button{
-                    background-color:#2563eb;
-                    }
-                    </style>
-                    """, unsafe_allow_html=True)
+    with col1:
+        with stylable_container(
+            key="start_btn",
+            css_styles="""
+            button{
+                background-color:#16a34a;
+                color:white;
+            }
+            """
+        ):
+            
+            if col1.button("🟢 Start"):
+                st.session_state.focus_running=True
+        # st.markdown("""
+        #             <style>
+        #             div[data-testid="column"]:nth-of-type(1) button{
+        #             background-color:#16a34a;
+        #             }
+        #             </style>
+        #             """, unsafe_allow_html=True)
+
+    with col2:
+        with stylable_container(
+            key="pause_btn",
+            css_styles="""
+            button{
+                background-color:#f59e0b;
+                color:white;
+            }
+            """
+        ):
+            if col2.button("Pause"):
+                st.session_state.focus_running=False
     
-    if col2.button("Pause"):
-        st.session_state.focus_running=False
-    
-    if col3.button("Reset"):
-        st.session_state.focus_running=False
-        st.session_state.focus_seconds=0.1*60
+    with col3:
+        with stylable_container(
+            key="reset_btn",
+            css_styles="""
+            button{
+                background-color:#dc2626;
+                color:white;
+            }
+            """
+        ):
+            if col3.button("Reset"):
+                st.session_state.focus_running=False
+                st.session_state.focus_seconds=0.1*60
 
     if st.session_state.focus_running:
         import time
