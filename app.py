@@ -76,6 +76,24 @@ def init_db():
                 )
                 """)
     
+    cur.execute("""
+                CREATE TABLE IF NOT EXISTS habits(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                created_at TEXT
+                )
+                """)
+    
+    cur.execute("""
+                CREATE TABLE IF NOT EXISTS habit_logs(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                habit_id INTEGER NOT NULL,
+                log_date TEXT NOT NULL,
+                completed INTEGER DEFAULT 0,
+                FOREIGN KEY(habit_id) REFERENCES habits(id)
+                )
+                """)
+
     conn.commit()
     conn.close()
 
@@ -284,7 +302,7 @@ st.markdown("""
             unsafe_allow_html=True)
 
 st.sidebar.title("Study OS")
-page=st.sidebar.radio("Navigation",  ["📊 Dashboard", "📋 Tasks", "📅 Calendar", "📂 Files", "📝 Notes", "⏱️ Focus", "💯 GPA", "📈Analytics"])
+page=st.sidebar.radio("Navigation",  ["📊 Dashboard", "📋 Tasks", "📅 Calendar", "📂 Files", "📝 Notes", "⏱️ Focus", "💯 GPA", "📈Analytics", "📑Habits"])
 
 if page=="📊 Dashboard":
     st.title("Study OS Dashboard")
@@ -1104,3 +1122,69 @@ if page=="📈Analytics":
         df["created_at"]=pd.to_datetime(df["created_at"])
         activity=df.groupby(df["created_at"].dt.date).size()
         st.line_chart(activity)
+
+if page=="📑Habits":
+    st.title("Habit Tracker")
+
+    today=date.today().isoformat()
+
+    st.subheader("Add Habit")
+
+    with st.form("add_habit"):
+        habit_name=st.text_input("Habit name",
+                                 placeholder="Read 20 minutes, Study Python, Drink water")
+        if st.form_submit_button("Add Habit"):
+            if habit_name:
+                run_query(
+                    """
+                    INSERT INTO habits(name, created_at)
+                    VALUES (?,?)
+                    """,
+                    (
+                        habit_name,
+                        datetime.now().isoformat()
+                    )
+                )
+                st.success("habit added!")
+                st.rerun()
+    
+    conn=get_conn()
+
+    habits_df=pd.read_sql_query(
+        "SELECT * FROM habits ORDER BY created_at DESC",
+        conn
+    )
+
+    logs_df=pd.read_sql_query(
+        "SELECT * FROM habits_logs",
+        conn
+    )
+
+    conn.close()
+
+    st.divider()
+
+    if habits_df.empty:
+        st.info("No habits yet")
+    else:
+        st.subheader("Today")
+
+        for _, habit in habits_df.iterrows():
+            habit_id=habit["id"]
+
+            already_done=False
+
+            if not logs_df.empty:
+                existing=logs_df[
+                    (logs_df["habit_id"]==habit_id)&
+                    (logs_df["log_date"]==today)&
+                    (logs_df["completed"]==1)
+                ]
+                already_done=not existing.empty
+
+            col1, col2, col3 = st.columns([4,1,1])
+            
+            col1.markdown(f"###{habit['name']}")
+
+            if already_done:
+                col2.success("Done")
