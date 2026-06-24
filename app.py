@@ -284,7 +284,7 @@ st.markdown("""
             unsafe_allow_html=True)
 
 st.sidebar.title("Study OS")
-page=st.sidebar.radio("Navigation",  ["📊 Dashboard", "📋 Tasks", "📅 Calendar", "📂 Files", "📝 Notes", "⏱️ Focus", "💯 GPA"])
+page=st.sidebar.radio("Navigation",  ["📊 Dashboard", "📋 Tasks", "📅 Calendar", "📂 Files", "📝 Notes", "⏱️ Focus", "💯 GPA", "📈Analytics"])
 
 if page=="📊 Dashboard":
     st.title("Study OS Dashboard")
@@ -1041,4 +1041,66 @@ if page=="💯 GPA":
                                 (row['id'],)
                             )
                             st.rerun()
-            
+if page=="📈Analytics":
+    st.title("📈 Study Analytics")
+
+    df = load_df()
+
+    if df.empty:
+        st.info("No task data yet")
+    else: 
+        total_tasks=len(df)
+        completed_tasks=len(df[df["status"]=="Done"])
+        in_progress_tasks=len(df[df["status"]=="In Progress"])
+        open_tasks=len(df[df["status"]=="Open"])
+        completion_rate=round((completed_tasks/total_tasks)*100, 1)
+
+        col1, col2, col3, col4 = st.columns(4)
+
+        col1.markdown(f"""
+                    <div class="dashboard-card">
+                        <h3> Total Tasks</h3>
+                        <div class="value">{total_tasks}</div>
+                        <div class="hint>All tasks</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+        
+        col2.markdown(f"""
+                    <div class="dashboard-card">
+                        <h3>Completed</h3>
+                        <div class="value">{completed_tasks}</div>
+                        <div class="hint">Done Tasks</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+        col3.markdown(f"""
+                    <div class="dashboard-card">
+                        <h3>In Progress</h3>
+                        <div class="value">{in_progress_tasks}</div>
+                        <div class="hint">Active Tasks</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+        col4.markdown(f"""
+                    <div class="dashboard-card">
+                        <h3>Completion</h3>
+                        <div class="value">{completion_rate}</div>
+                        <div class="hint">Productivity rate</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+        
+        st.divider()
+
+        st.subheader("Tasks by Status")
+
+        status_chart=df["status"].value_counts()
+        st.bar_chart(status_chart)
+
+        st.subheader("Tasks by Priority")
+
+        priority_chart=df["priority"].value_counts()
+        st.bar_chart(priority_chart)
+
+        st.subheader("Tasks Created Over Time")
+
+        df["created_at"]=pd.to_datetime(df["created_at"])
+        activity=df.groupby(df["created_at"].dt.date).size()
+        st.line_chart(activity)
