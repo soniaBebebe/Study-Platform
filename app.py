@@ -1188,3 +1188,4 @@ if page=="📑Habits":
 
             if already_done:
                 col2.success("Done")
+            # else: prodolzhit osuda!!!
