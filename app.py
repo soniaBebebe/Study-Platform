@@ -93,6 +93,8 @@ def init_db():
                 FOREIGN KEY(habit_id) REFERENCES habits(id)
                 )
                 """)
+    
+
 
     conn.commit()
     conn.close()
@@ -302,7 +304,7 @@ st.markdown("""
             unsafe_allow_html=True)
 
 st.sidebar.title("Study OS")
-page=st.sidebar.radio("Navigation",  ["📊 Dashboard", "📋 Tasks", "📅 Calendar", "📂 Files", "📝 Notes", "⏱️ Focus", "💯 GPA", "📈Analytics", "📑Habits"])
+page=st.sidebar.radio("Navigation",  ["📊 Dashboard", "📋 Tasks", "📅 Calendar", "📂 Files", "📝 Notes", "⏱️ Focus", "💯 GPA", "📈Analytics", "📑Habits", "🔥Streak"])
 
 if page=="📊 Dashboard":
     st.title("Study OS Dashboard")
@@ -1223,3 +1225,103 @@ if page=="📑Habits":
             logs_df["log_date"]=pd.to_datetime(logs_df["log_date"])
             weekly=logs_df.groupby(logs_df["log_date"].dt.date)["completed"].sum()
             st.bar_chart(weekly)
+
+if page=="🔥Streak":
+    st.title("🔥Study Streak")
+
+    today=date.today()
+    conn=get_conn()
+
+    habit_days=pd.read_sql_query(
+        """
+        SELECT DISTINCT log_date
+        FROM habit_logs
+        WHERE completed=1
+        """,
+        conn
+    )
+
+    task_days=pd.read_sql_query(
+        """
+        SELECT DISTINCT DATE(created_at) as log_date
+        FROM tasks
+        """,
+        conn
+    )
+
+    conn.close()
+    active_days=set()
+
+    if not habit_days.empty:
+        for d in habit_days["log_date"]:
+            active_days.add(str(d))
+    
+    if not task_days.empty:
+        for d in task_days["log_date"]:
+            active_days.add(str(d))
+
+    current_streak=0
+    check_day=today
+
+    while check_day.isoformat() in active_days:
+        current_streak +=1
+        check_day=check_day - pd.Timedelta(days=1)
+    
+    sorted_days=sorted([
+        datetime.strptime(d, "%Y-%m-%d").date()
+        for d in active_days
+        if d
+    ])
+
+    longest_streak=0
+    temp_streak=0
+    previous_day=None
+
+    for d in sorted_days:
+        if previous_day is None:
+            temp_streak=1
+        elif (d-previous_day).days==1:
+            temp_streak+=1
+        else:
+            temp_streak=1
+        
+        longest_streak=max(longest_streak, temp_streak)
+        previous_day=d
+    
+    col1, col2, col3 = st.columns(3)
+
+    col1.markdown(f"""
+                  <div class="dashboard_card">
+                    <h3>🔥 Current Streak </h3>
+                    <div class="value">{current_streak}</div>
+                    <div class="hint"> days in a row</div>
+                  </div>
+                  """, unsafe_allow_html=True)
+    
+    col2.markdown(f"""
+                  <div class="dashboard-card">
+                    <h3> Longest Streak</h3>
+                    <div class="value">{longest_streak}</div>
+                    <div class="hint"> best result</div>
+                  </div>
+                  """, unsafe_allow_html=True)
+    
+    today_status="Active" if today.isoformat() in active_days else "Not yet"
+
+    col3.markdown(f"""
+                  <div class="dashboard-card">
+                    <h3>Todayk</h3>
+                    <div class="value">{today_status}</div>
+                    <div class="hint">study activity</div>
+                  </div>
+                  """, unsafe_allow_html=True)
+
+    st.divider()
+
+    st.subheader("Active Days")
+
+    if not active_days:
+        st.info("No activity yet")
+    else:
+        for d in sorted(active_days, reverse=True):
+            st.markdown(f"🟩{d}")
