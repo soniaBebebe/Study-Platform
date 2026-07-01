@@ -1156,7 +1156,7 @@ if page=="📑Habits":
     )
 
     logs_df=pd.read_sql_query(
-        "SELECT * FROM habits_logs",
+        "SELECT * FROM habit_logs",
         conn
     )
 
@@ -1188,4 +1188,38 @@ if page=="📑Habits":
 
             if already_done:
                 col2.success("Done")
-            # else: prodolzhit osuda!!!
+            else:
+                if col2.button("Mark Done", key=f"done_habit_{habit_id}"):
+                    run_query(
+                        """
+                            INSERT INTO habit_logs(habit_id, log_date, completed)
+                            VALUES(?,?,?)
+                        """,
+                        (
+                            habit_id,
+                            today,
+                            1
+                        )
+                    )
+                    st.rerun()
+            if col3.button("Delete", key=f"delete_habit_{habit_id}"):
+                run_query(
+                    "DELETE FROM habit_logs WHERE habit_id=?",
+                    (habit_id,)
+                )
+                run_query(
+                    "DELETE FROM habits WHERE id=?",
+                    (habit_id,)
+                )
+                st.rerun()
+
+        st.divider()
+
+        st.subheader("Weekly Habit Progress")
+
+        if logs_df.empty:
+            st.info("No habit logs yet")
+        else:
+            logs_df["log_date"]=pd.to_datetime(logs_df["log_date"])
+            weekly=logs_df.groupby(logs_df["log_date"].dt.date)["completed"].sum()
+            st.bar_chart(weekly)
