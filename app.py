@@ -8,6 +8,7 @@ import streamlit.components.v1 as components
 import base64
 from streamlit_extras.stylable_container import stylable_container
 from pathlib import Path
+from components.ui import dashboard_card
 
 DB_PATH="study_os.db"
 
@@ -207,38 +208,30 @@ if page=="📊 Dashboard":
         # col3.metric("Urgent", urgent)
         # col4.metric("Overdue", overdue)
 
-        col1.markdown(f"""
-                      <div class="dashboard-card">
-                      <h3>Total Tasks</h3>
-                      <div class="value">{total_tasks}</div>
-                      <div class="hint">All created tasks</div>
-                      </div>
-                      """,
-                      unsafe_allow_html=True)
-        col2.markdown(f"""
-                      <div class="dashboard-card">
-                      <h3>Done</h3>
-                      <div class="value">{done_tasks}</div>
-                      <div class="hint">Completed tasks</div>
-                      </div>
-                      """,
-                      unsafe_allow_html=True)
-        col3.markdown(f"""
-                      <div class="dashboard-card">
-                      <h3>Urgent</h3>
-                      <div class="value">{urgent}</div>
-                      <div class="hint">Due today or tomorrow</div>
-                      </div>
-                      """,
-                      unsafe_allow_html=True)
-        col4.markdown(f"""
-                      <div class="dashboard-card">
-                      <h3>Overdue</h3>
-                      <div class="value">{overdue}</div>
-                      <div class="hint">Missed deadlines</div>
-                      </div>
-                      """,
-                      unsafe_allow_html=True)
+        dashboard_card(
+            col1,
+            "Total Tasks",
+            total_tasks,
+            "All created tasks",
+        )
+        dashboard_card(
+            col2,
+            "Done",
+            done_tasks,
+            "Completed tasks",
+        )
+        dashboard_card(
+            col3,
+            "Urgent",
+            urgent,
+            "Due today or tomorrow",
+        )
+        dashboard_card(
+            col4,
+            "Overdue",
+            overdue,
+            "Missed deadlines",
+        )
 
         st.divider()
 
