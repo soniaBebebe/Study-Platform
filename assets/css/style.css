@@ -1,0 +1,131 @@
+.stApp{
+background:linear-gradient(
+180deg,
+#0b0f19 0%,
+#111827 100%
+);
+color:white;
+}
+
+section[data-testid="stSidebar"]{
+background-color: #0f172a;
+border-right:1px solid #1e293b;
+}
+
+section[data-testid="stSidebar"]*{
+color:white !important;
+}
+
+.stButton>button{
+width:100%;
+border-radius:12px;
+border:none;
+background-color:linear-gradient(135deg, #2563ed, #7c3aed);
+color:white;
+font-weight:bold;
+transition: all 0.2s ease-in-out;
+}
+
+.stButton>button:hover{
+transform:translateY(-3px) scale(1.03);
+box-shadow: 0 8px 20px rgba(59,130,246,0.4);
+}
+
+.stTextInput input, 
+.stTextArea textarea{
+border-radius:12px !important;
+background-color:#111827 !important;
+color:white !important;
+border:1px solid #334155 !important;
+}
+
+.stSelectbox div[data-baseweb="select"]{
+background-color:#111827 !important;
+border-radius:12px !important;
+}
+
+[data-testid="stMetric"]{
+background:rgba(17,24,39,0.7);
+border:1px solid #334155;
+padding:16px;
+border-radius:16px;
+backdrop-filter:blur(12px);
+}
+
+.streamlit-expanderHeader{
+background-color:#111827;
+border-radius:10px;
+}
+
+div[data-testid="column"]>div{
+transition:all 0.2s easi-in-out;
+}
+
+div[data-testid="column"]>div:hover{
+transform:scale(1.02);
+}
+
+::-webkit-scrollbar{
+width:10px;
+}
+
+::-webkit-scrollbar-track{
+background:#0f172a;
+}
+
+::-webkit-scrollbar-thumb{
+background:#334155;
+border-radius:10px;
+}
+
+::-webkit-scrollbar-thumb:hover{
+background:#475569;
+}
+
+.dashboard-card{
+background: linear-gradient(135deg, #111827, #1e293b);
+border:1px solid #334155;
+border-radius:20px;
+padding:22px;
+box-shadow:0 10px 30px rgba(0,0,0,0.25);
+transition:all 0.25s ease-in-out;
+min-height:130px;
+}
+
+.dashboard-card:hover{
+transform:translateY(-6px) scale(1.02);
+border-color:#60a5fa;
+box-shadow:0 18px 40px rgba(96, 165, 250, 0.25);
+}
+
+.dashboard-card h3{
+font-size: 16px;
+color:#cbd5e1;
+margin-bottom:12px;
+}
+
+.dashboard-card .value{
+font-size:36px;
+font-weight:800;
+color:white;
+}
+
+.dashboard-card .hint{
+font-size:13px;
+color:#94a3b8;
+margin-top:8px;
+}
+
+div[data-testid="column"]:nth-child(1) .stButton button{
+background-color:#16a34a !important;
+color:white !important;
+}
+
+div[data-testid="column"]:nth-child(2) .stButton button{
+background-color:#f59e0b !important;
+color:white !important;
+}
+div[data-testid="column"]:nth-child(3) .stButton button{
+background-color:#dc2626 !important;
+color:white !important;
+}
