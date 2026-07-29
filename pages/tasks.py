@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
-from app import run_query, days_left
+from utils.helpers import days_left
+from streamlit_extras.stylable_container import stylable_container
 
 from datetime import datetime, date
 from database.db import run_query

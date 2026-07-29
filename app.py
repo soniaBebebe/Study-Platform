@@ -10,6 +10,7 @@ from streamlit_extras.stylable_container import stylable_container
 from pathlib import Path
 from components.ui import dashboard_card
 from pages import tasks
+from database.db import( get_conn, run_query, load_df)
 
 DB_PATH="study_os.db"
 
@@ -21,11 +22,6 @@ def load_css():
             f"<style>{f.read()}</style",
             unsafe_allow_html=True
         )
-
-def get_conn():
-    conn=sqlite3.connect(DB_PATH, check_same_thread=False)
-    conn.row_factory=sqlite3.Row
-    return conn
 
 def play_sound(file_path):
     with open(file_path, "rb") as audio_file:
@@ -119,21 +115,6 @@ def days_left(deadline_str):
     d=datetime.strptime(deadline_str, "%Y-%m-%d").date()
     return (d-date.today()).days
 
-def run_query(query, params=(), fetch=False):
-    conn=get_conn()
-    cur=conn.cursor()
-    cur.execute(query,params)
-    rows=cur.fetchall() if fetch else None
-    conn.commit()
-    conn.close()
-    return rows
-
-def load_df():
-    conn=get_conn()
-    df=pd.read_sql_query("SELECT * FROM tasks", conn)
-    conn.close()
-    return df
-
 def grade_to_points(grade):
     if grade>=95:
         return 4.0
@@ -182,7 +163,7 @@ page=st.sidebar.radio("Navigation",  ["📊 Dashboard", "📋 Tasks", "📅 Cale
 
 if page=="📊 Dashboard":
     st.title("Study OS Dashboard")
-    df=load_df()
+    df=load_df("""SELECT * FROM tasks""")
     total_tasks=len(df)
 
     if df.empty:
@@ -259,7 +240,7 @@ if page=="📊 Dashboard":
 if page=="📅 Calendar":
     st.title("calendar")
 
-    df=load_df()
+    df=load_df("""SELECT * FROM tasks""")
 
     if "cal_month" not in st.session_state:
         st.session_state.cal_month = date.today().month
@@ -841,7 +822,7 @@ if page=="💯 GPA":
 if page=="📈Analytics":
     st.title("📈 Study Analytics")
 
-    df = load_df()
+    df = load_df("""SELECT * FROM tasks""")
 
     if df.empty:
         st.info("No task data yet")
