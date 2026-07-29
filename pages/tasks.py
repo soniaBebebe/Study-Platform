@@ -1,9 +1,10 @@
 import streamlit as st
 import pandas as pd
-from app import load_df, run_query, days_left
+from app import run_query, days_left
 
 from datetime import datetime, date
-from database.db import run_query, load_df
+from database.db import run_query
+from database.task_queries import get_tasks
 
 def show():
     st.title("Task Manager")
@@ -22,7 +23,7 @@ def show():
                 )
                 st.success("The task was added")
                 st.rerun()
-    df=load_df()
+    df=get_tasks()
 
     urgent_tasks=[]
 
